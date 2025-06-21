@@ -157,6 +157,7 @@ BundleResource represents the content of a single resource from the bundle, like
 | targetRestrictions | TargetRestrictions is an allow list, which controls if a bundledeployment is created for a target. | \[\][BundleTargetRestriction](#bundletargetrestriction) | false |
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | contentsId | ContentsID stores the contents id when deploying contents using an OCI registry. | string | false |
+| valuesHash | ValuesHash is the hash of the values used to render the Helm chart. It changes when any values from fleet.yaml, values from ValuesFiles or values from target customization changes. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -388,6 +389,7 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
 | ociContents | OCIContents is true when this deployment's contents is stored in an oci registry | bool | false |
+| valuesHash | ValuesHash is the hash of the values used to deploy the bundle. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
