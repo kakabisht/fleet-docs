@@ -15,5 +15,3 @@ title: "0.8 Changelogs"
 
 * [v0.8.1](changelogs/v0.8.1.md) 
 
-* [v0.8.0](changelogs/v0.8.0.md) 
-
