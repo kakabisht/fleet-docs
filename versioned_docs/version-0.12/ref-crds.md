@@ -15,6 +15,7 @@
 # Sub Resources
 
 * [BundleDisplay](#bundledisplay)
+* [BundleHelmOptions](#bundlehelmoptions)
 * [BundleList](#bundlelist)
 * [BundleRef](#bundleref)
 * [BundleResource](#bundleresource)
@@ -68,13 +69,10 @@
 * [CorrectDrift](#correctdrift)
 * [GitRepoDisplay](#gitrepodisplay)
 * [GitRepoList](#gitrepolist)
-* [GitRepoResource](#gitreporesource)
-* [GitRepoResourceCounts](#gitreporesourcecounts)
 * [GitRepoSpec](#gitrepospec)
 * [GitRepoStatus](#gitrepostatus)
 * [GitTarget](#gittarget)
 * [OCIRegistrySpec](#ociregistryspec)
-* [ResourcePerClusterState](#resourceperclusterstate)
 * [GitRepoRestrictionList](#gitreporestrictionlist)
 * [AlphabeticalPolicy](#alphabeticalpolicy)
 * [ImagePolicyChoice](#imagepolicychoice)
@@ -107,6 +105,17 @@ BundleDisplay contains the number of ready, desiredready clusters and a summary 
 | ----- | ----------- | ------ | -------- |
 | readyClusters | ReadyClusters is a string in the form \"%d/%d\", that describes the number of clusters that are ready vs. the number of clusters desired to be ready. | string | false |
 | state | State is a summary state for the bundle, calculated over the non-ready resources. | string | false |
+
+[Back to Custom Resources](#custom-resources-spec)
+
+#### BundleHelmOptions
+
+
+
+| Field | Description | Scheme | Required |
+| ----- | ----------- | ------ | -------- |
+| helmAppSecretName | SecretName stores the secret name for storing credentials when accessing a remote helm repository defined in a HelmApp resource | string | false |
+| helmAppInsecureSkipTLSVerify | InsecureSkipTLSverify will use insecure HTTPS to clone the helm app resource. | bool | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -157,6 +166,8 @@ BundleResource represents the content of a single resource from the bundle, like
 | targetRestrictions | TargetRestrictions is an allow list, which controls if a bundledeployment is created for a target. | \[\][BundleTargetRestriction](#bundletargetrestriction) | false |
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | contentsId | ContentsID stores the contents id when deploying contents using an OCI registry. | string | false |
+| helmAppOptions | HelmAppOptions stores the options relative to HelmApp resources Non-nil HelmAppOptions indicate that the source of resources is a Helm chart, not a git repository. | *[BundleHelmOptions](#bundlehelmoptions) | false |
+| valuesHash | ValuesHash is the hash of the values used to render the Helm chart. It changes when any values from fleet.yaml, values from ValuesFiles or values from target customization changes. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -348,7 +359,7 @@ BundleDeploymentList contains a list of BundleDeployment
 | helm | Helm options for the deployment, like the chart name, repo and values. | *[HelmOptions](#helmoptions) | false |
 | serviceAccount | ServiceAccount which will be used to perform this deployment. | string | false |
 | forceSyncGeneration | ForceSyncGeneration is used to force a redeployment | int64 | false |
-| yaml | YAML options, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
+| yaml | YAML options, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
 | diff | Diff can be used to ignore the modified state of objects which are amended at runtime. | *[DiffOptions](#diffoptions) | false |
 | keepResources | KeepResources can be used to keep the deployed resources when removing the bundle | bool | false |
 | deleteNamespace | DeleteNamespace can be used to delete the deployed namespace when removing the bundle | bool | false |
@@ -388,6 +399,8 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
 | ociContents | OCIContents is true when this deployment's contents is stored in an oci registry | bool | false |
+| helmChartOptions | HelmChartOptions is not nil and has the helm chart config details when contents should be downloaded from a helm chart | *[BundleHelmOptions](#bundlehelmoptions) | false |
+| valuesHash | ValuesHash is the hash of the values used to deploy the bundle. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -404,9 +417,11 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | nonModified |  | bool | false |
 | nonReadyStatus |  | \[\][NonReadyStatus](#nonreadystatus) | false |
 | modifiedStatus |  | \[\][ModifiedStatus](#modifiedstatus) | false |
+| incompleteState | IncompleteState is true if there are more than 10 non-ready or modified resources, meaning that the lists in those fields have been truncated. | bool | false |
 | display |  | [BundleDeploymentDisplay](#bundledeploymentdisplay) | false |
 | syncGeneration |  | *int64 | false |
 | resources | Resources lists the metadata of resources that were deployed according to the helm release history. | \[\][BundleDeploymentResource](#bundledeploymentresource) | false |
+| resourceCounts | ResourceCounts contains the number of resources in each state. | ResourceCounts | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -442,7 +457,7 @@ ComparePatch matches a resource and removes fields from the check for modificati
 
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
-| comparePatches | ComparePatches match a resource and remove fields from the check for modifications. | \[\][ComparePatch](#comparepatch) | false |
+| comparePatches | ComparePatches match a resource and remove fields, or the resource itself from the check for modifications. | \[\][ComparePatch](#comparepatch) | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -458,6 +473,7 @@ HelmOptions for the deployment. For Helm-based bundles, all options can be used,
 | version | Version of the chart to download | string | false |
 | timeoutSeconds | TimeoutSeconds is the time to wait for Helm operations. | int | false |
 | values | Values passed to Helm. It is possible to specify the keys and values as go template strings. | *GenericMap | false |
+| templateValues | Template Values passed to Helm. It is possible to specify the keys and values as go template strings. Unlike .values, content of each key will be templated first, before serializing to yaml. This allows to template complex values, like ranges and maps. templateValues keys have precedence over values keys in case of conflict. | map[string]string | false |
 | valuesFrom | ValuesFrom loads the values from configmaps and secrets. | \[\][ValuesFrom](#valuesfrom) | false |
 | force | Force allows to override immutable resources. This could be dangerous. | bool | false |
 | takeOwnership | TakeOwnership makes helm skip the check for its own annotations | bool | false |
@@ -536,12 +552,12 @@ NonReadyStatus is used to report the status of a resource that is not ready. It 
 
 #### Operation
 
-Operation of a ComparePatch, usually \"remove\".
+Operation of a ComparePatch, usually: * \"remove\" to remove a specific path in a resource * \"ignore\" to remove the entire resource from checks for modifications.
 
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
-| op | Op is usually \"remove\" | string | false |
-| path | Path is the JSON path to remove. | string | false |
+| op | Op is usually \"remove\" or \"ignore\" | string | false |
+| path | Path is the JSON path to remove. Not needed if Op is \"ignore\". | string | false |
 | value | Value is usually empty. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
@@ -570,7 +586,7 @@ Define helm values that can come from configmap, secret or external. Credit: htt
 
 #### YAMLOptions
 
-YAMLOptions, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource.
+YAMLOptions, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource.
 
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
@@ -664,7 +680,7 @@ ClusterList contains a list of Cluster
 | agentTolerations | AgentTolerations defines an extra set of Tolerations to be added to the Agent deployment. | []corev1.Toleration | false |
 | agentAffinity | AgentAffinity overrides the default affinity for the cluster's agent deployment. If this value is nil the default affinity is used. | *corev1.Affinity | false |
 | agentResources | AgentResources sets the resources for the cluster's agent deployment. | *corev1.ResourceRequirements | false |
-| hostNetwork | HostNetwork sets the agent StatefulSet to use hostNetwork: true setting. Allows for provisioning of network related bundles (CNI configuration). | *bool | false |
+| hostNetwork | HostNetwork sets the agent Deployment to use hostNetwork: true setting. Allows for provisioning of network related bundles (CNI configuration). | *bool | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -676,8 +692,8 @@ ClusterList contains a list of Cluster
 | ----- | ----------- | ------ | -------- |
 | conditions |  | []genericcondition.GenericCondition | false |
 | namespace | Namespace is the cluster namespace, it contains the clusters service account as well as any bundledeployments. Example: \"cluster-fleet-local-cluster-294db1acfa77-d9ccf852678f\" | string | false |
-| summary | Summary is a summary of the bundledeployments. The resource counts are copied from the gitrepo resource. | [BundleSummary](#bundlesummary) | false |
-| resourceCounts | ResourceCounts is an aggregate over the GitRepoResourceCounts. | [GitRepoResourceCounts](#gitreporesourcecounts) | false |
+| summary | Summary is a summary of the bundledeployments. | [BundleSummary](#bundlesummary) | false |
+| resourceCounts | ResourceCounts is an aggregate over the ResourceCounts. | ResourceCounts | false |
 | readyGitRepos | ReadyGitRepos is the number of gitrepos for this cluster that are ready. | int | true |
 | desiredReadyGitRepos | DesiredReadyGitRepos is the number of gitrepos for this cluster that are desired to be ready. | int | true |
 | agentEnvVarsHash | AgentEnvVarsHash is a hash of the agent's env vars, used to detect changes. | string | false |
@@ -757,7 +773,7 @@ ClusterGroupList contains a list of ClusterGroup
 | conditions | Conditions is a list of conditions and their statuses for the cluster group. | []genericcondition.GenericCondition | false |
 | summary | Summary is a summary of the bundle deployments and their resources in the cluster group. | [BundleSummary](#bundlesummary) | false |
 | display | Display contains the number of ready, desiredready clusters and a summary state for the bundle's resources. | [ClusterGroupDisplay](#clustergroupdisplay) | false |
-| resourceCounts | ResourceCounts contains the number of resources in each state over all bundles in the cluster group. | [GitRepoResourceCounts](#gitreporesourcecounts) | false |
+| resourceCounts | ResourceCounts contains the number of resources in each state over all bundles in the cluster group. | ResourceCounts | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -934,44 +950,6 @@ GitRepoList contains a list of GitRepo
 
 [Back to Custom Resources](#custom-resources-spec)
 
-#### GitRepoResource
-
-GitRepoResource contains metadata about the resources of a bundle.
-
-| Field | Description | Scheme | Required |
-| ----- | ----------- | ------ | -------- |
-| apiVersion | APIVersion is the API version of the resource. | string | false |
-| kind | Kind is the k8s kind of the resource. | string | false |
-| type | Type is the type of the resource, e.g. \"apiextensions.k8s.io.customresourcedefinition\" or \"configmap\". | string | false |
-| id | ID is the name of the resource, e.g. \"namespace1/my-config\" or \"backingimagemanagers.storage.io\". | string | false |
-| namespace | Namespace of the resource. | string | false |
-| name | Name of the resource. | string | false |
-| incompleteState | IncompleteState is true if a bundle summary has 10 or more non-ready resources or a non-ready resource has more 10 or more non-ready or modified states. | bool | false |
-| state | State is the state of the resource, e.g. \"Unknown\", \"WaitApplied\", \"ErrApplied\" or \"Ready\". | string | false |
-| error | Error is true if any Error in the PerClusterState is true. | bool | false |
-| transitioning | Transitioning is true if any Transitioning in the PerClusterState is true. | bool | false |
-| message | Message is the first message from the PerClusterStates. | string | false |
-| perClusterState | PerClusterState is a list of states for each cluster. Derived from the summaries non-ready resources. | \[\][ResourcePerClusterState](#resourceperclusterstate) | false |
-
-[Back to Custom Resources](#custom-resources-spec)
-
-#### GitRepoResourceCounts
-
-GitRepoResourceCounts contains the number of resources in each state.
-
-| Field | Description | Scheme | Required |
-| ----- | ----------- | ------ | -------- |
-| ready | Ready is the number of ready resources. | int | true |
-| desiredReady | DesiredReady is the number of resources that should be ready. | int | true |
-| waitApplied | WaitApplied is the number of resources that are waiting to be applied. | int | true |
-| modified | Modified is the number of resources that have been modified. | int | true |
-| orphaned | Orphaned is the number of orphaned resources. | int | true |
-| missing | Missing is the number of missing resources. | int | true |
-| unknown | Unknown is the number of resources in an unknown state. | int | true |
-| notReady | NotReady is the number of not ready resources. Resources are not ready if they do not match any other state. | int | true |
-
-[Back to Custom Resources](#custom-resources-spec)
-
 #### GitRepoSpec
 
 
@@ -995,7 +973,7 @@ GitRepoResourceCounts contains the number of resources in each state.
 | pollingInterval | PollingInterval is how often to check git for new updates. | *metav1.Duration | false |
 | forceSyncGeneration | Increment this number to force a redeployment of contents from Git. | int64 | false |
 | imageScanInterval | ImageScanInterval is the interval of syncing scanned images and writing back to git repo. | *metav1.Duration | false |
-| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | [CommitSpec](#commitspec) | false |
+| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | *[CommitSpec](#commitspec) | false |
 | keepResources | KeepResources specifies if the resources created must be kept after deleting the GitRepo. | bool | false |
 | deleteNamespace | DeleteNamespace specifies if the namespace created must be deleted after deleting the GitRepo. | bool | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
@@ -1014,15 +992,7 @@ GitRepoResourceCounts contains the number of resources in each state.
 | updateGeneration | Update generation is the force update generation if spec.forceSyncGeneration is set | int64 | false |
 | commit | Commit is the Git commit hash from the last git job run. | string | false |
 | webhookCommit | WebhookCommit is the latest Git commit hash received from a webhook | string | false |
-| readyClusters | ReadyClusters is the lowest number of clusters that are ready over all the bundles of this GitRepo. | int | true |
-| desiredReadyClusters | DesiredReadyClusters\tis the number of clusters that should be ready for bundles of this GitRepo. | int | true |
 | gitJobStatus | GitJobStatus is the status of the last Git job run, e.g. \"Current\" if there was no error. | string | false |
-| summary | Summary contains the number of bundle deployments in each state and a list of non-ready resources. | [BundleSummary](#bundlesummary) | false |
-| display | Display contains a human readable summary of the status. | [GitRepoDisplay](#gitrepodisplay) | false |
-| conditions | Conditions is a list of Wrangler conditions that describe the state of the GitRepo. | []genericcondition.GenericCondition | false |
-| resources | Resources contains metadata about the resources of each bundle. | \[\][GitRepoResource](#gitreporesource) | false |
-| resourceCounts | ResourceCounts contains the number of resources in each state over all bundles. | [GitRepoResourceCounts](#gitreporesourcecounts) | false |
-| resourceErrors | ResourceErrors is a sorted list of errors from the resources. | []string | false |
 | lastSyncedImageScanTime | LastSyncedImageScanTime is the time of the last image scan. | metav1.Time | false |
 | lastPollingTriggered | LastPollingTime is the last time the polling check was triggered | metav1.Time | false |
 
@@ -1049,24 +1019,9 @@ GitTarget is a cluster or cluster group to deploy to.
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
 | reference | Reference of the OCI Registry | string | false |
-| authSecretName | AuthSecretName contains the auth secret where the OCI regristry credentials are stored. | string | false |
+| authSecretName | AuthSecretName contains the auth secret where the OCI registry credentials are stored. | string | false |
 | basicHTTP | BasicHTTP uses HTTP connections to the OCI registry when enabled. | bool | false |
 | insecureSkipTLS | InsecureSkipTLS allows connections to OCI registry without certs when enabled. | bool | false |
-
-[Back to Custom Resources](#custom-resources-spec)
-
-#### ResourcePerClusterState
-
-ResourcePerClusterState is generated for each non-ready resource of the bundles.
-
-| Field | Description | Scheme | Required |
-| ----- | ----------- | ------ | -------- |
-| state | State is the state of the resource. | string | false |
-| error | Error is true if the resource is in an error state, copied from the bundle's summary for non-ready resources. | bool | false |
-| transitioning | Transitioning is true if the resource is in a transitioning state, copied from the bundle's summary for non-ready resources. | bool | false |
-| message | Message combines the messages from the bundle's summary. Messages are joined with the delimiter ';'. | string | false |
-| patch | Patch for modified resources. | *GenericMap | false |
-| clusterId | ClusterID is the id of the cluster. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 

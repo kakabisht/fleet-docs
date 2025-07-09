@@ -157,6 +157,7 @@ BundleResource represents the content of a single resource from the bundle, like
 | targetRestrictions | TargetRestrictions is an allow list, which controls if a bundledeployment is created for a target. | \[\][BundleTargetRestriction](#bundletargetrestriction) | false |
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | contentsId | ContentsID stores the contents id when deploying contents using an OCI registry. | string | false |
+| valuesHash | ValuesHash is the hash of the values used to render the Helm chart. It changes when any values from fleet.yaml, values from ValuesFiles or values from target customization changes. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -348,7 +349,7 @@ BundleDeploymentList contains a list of BundleDeployment
 | helm | Helm options for the deployment, like the chart name, repo and values. | *[HelmOptions](#helmoptions) | false |
 | serviceAccount | ServiceAccount which will be used to perform this deployment. | string | false |
 | forceSyncGeneration | ForceSyncGeneration is used to force a redeployment | int64 | false |
-| yaml | YAML options, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
+| yaml | YAML options, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
 | diff | Diff can be used to ignore the modified state of objects which are amended at runtime. | *[DiffOptions](#diffoptions) | false |
 | keepResources | KeepResources can be used to keep the deployed resources when removing the bundle | bool | false |
 | deleteNamespace | DeleteNamespace can be used to delete the deployed namespace when removing the bundle | bool | false |
@@ -388,6 +389,7 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
 | ociContents | OCIContents is true when this deployment's contents is stored in an oci registry | bool | false |
+| valuesHash | ValuesHash is the hash of the values used to deploy the bundle. | string | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -570,7 +572,7 @@ Define helm values that can come from configmap, secret or external. Credit: htt
 
 #### YAMLOptions
 
-YAMLOptions, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource.
+YAMLOptions, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource.
 
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
@@ -951,7 +953,7 @@ GitRepoResource contains metadata about the resources of a bundle.
 | error | Error is true if any Error in the PerClusterState is true. | bool | false |
 | transitioning | Transitioning is true if any Transitioning in the PerClusterState is true. | bool | false |
 | message | Message is the first message from the PerClusterStates. | string | false |
-| perClusterState | PerClusterState is a list of states for each cluster. Derived from the summaries non-ready resources. | \[\][ResourcePerClusterState](#resourceperclusterstate) | false |
+| perClusterState | PerClusterState is a list of states for each cluster. Derived from the summaries non-ready resources. | PerClusterState | false |
 
 [Back to Custom Resources](#custom-resources-spec)
 
@@ -995,7 +997,7 @@ GitRepoResourceCounts contains the number of resources in each state.
 | pollingInterval | PollingInterval is how often to check git for new updates. | *metav1.Duration | false |
 | forceSyncGeneration | Increment this number to force a redeployment of contents from Git. | int64 | false |
 | imageScanInterval | ImageScanInterval is the interval of syncing scanned images and writing back to git repo. | *metav1.Duration | false |
-| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | [CommitSpec](#commitspec) | false |
+| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | *[CommitSpec](#commitspec) | false |
 | keepResources | KeepResources specifies if the resources created must be kept after deleting the GitRepo. | bool | false |
 | deleteNamespace | DeleteNamespace specifies if the namespace created must be deleted after deleting the GitRepo. | bool | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
