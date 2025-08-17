@@ -17,6 +17,8 @@ title: "0.9 Changelogs"
 
 * [v0.9.12](changelogs/v0.9.12.md) 
 
+* [v0.9.11](changelogs/v0.9.11.md) 
+
 * [v0.9.10](changelogs/v0.9.10.md) 
 
 * [v0.9.9](changelogs/v0.9.9.md) 
