@@ -97,7 +97,7 @@ When a GitRepo is scanned it will produce one or more bundles. Bundles are a col
 | spec |  | [BundleSpec](#bundlespec) | true |
 | status |  | [BundleStatus](#bundlestatus) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDisplay
 
@@ -108,7 +108,7 @@ BundleDisplay contains the number of ready, desiredready clusters and a summary 
 | readyClusters | ReadyClusters is a string in the form \"%d/%d\", that describes the number of clusters that are ready vs. the number of clusters desired to be ready. | string | false |
 | state | State is a summary state for the bundle, calculated over the non-ready resources. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleList
 
@@ -119,7 +119,7 @@ BundleList contains a list of Bundle
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][Bundle](#bundle) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleRef
 
@@ -130,7 +130,7 @@ BundleList contains a list of Bundle
 | name | Name of the bundle. | string | false |
 | selector | Selector matching bundle's labels. | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleResource
 
@@ -142,7 +142,7 @@ BundleResource represents the content of a single resource from the bundle, like
 | content | The content of the resource, can be compressed. | string | false |
 | encoding | Encoding is either empty or \"base64+gz\". | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleSpec
 
@@ -157,8 +157,9 @@ BundleResource represents the content of a single resource from the bundle, like
 | targetRestrictions | TargetRestrictions is an allow list, which controls if a bundledeployment is created for a target. | \[\][BundleTargetRestriction](#bundletargetrestriction) | false |
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | contentsId | ContentsID stores the contents id when deploying contents using an OCI registry. | string | false |
+| valuesHash | ValuesHash is the hash of the values used to render the Helm chart. It changes when any values from fleet.yaml, values from ValuesFiles or values from target customization changes. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleStatus
 
@@ -181,7 +182,7 @@ BundleResource represents the content of a single resource from the bundle, like
 | observedGeneration | ObservedGeneration is the current generation of the bundle. | int64 | true |
 | resourcesSha256Sum | ResourcesSHA256Sum corresponds to the JSON serialization of the .Spec.Resources field | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleSummary
 
@@ -199,7 +200,7 @@ BundleSummary contains the number of bundle deployments in each state and a list
 | desiredReady | DesiredReady is the number of bundle deployments that should be ready. | int | true |
 | nonReadyResources | NonReadyClusters is a list of states, which is filled for a bundle that is not ready. | \[\][NonReadyResource](#nonreadyresource) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleTarget
 
@@ -216,7 +217,7 @@ BundleTarget declares clusters to deploy to. Fleet will merge the BundleDeployme
 | namespaceLabels | NamespaceLabels are labels that will be appended to the namespace created by Fleet. | map[string]string | false |
 | namespaceAnnotations | NamespaceAnnotations are annotations that will be appended to the namespace created by Fleet. | map[string]string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleTargetRestriction
 
@@ -230,7 +231,7 @@ BundleTargetRestriction is used internally by Fleet and should not be modified. 
 | clusterGroup |  | string | false |
 | clusterGroupSelector |  | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### NonReadyResource
 
@@ -244,7 +245,7 @@ NonReadyResource contains information about a bundle that is not ready for a giv
 | modifiedStatus | ModifiedStatus lists the state for each modified resource. | \[\][ModifiedStatus](#modifiedstatus) | false |
 | nonReadyStatus | NonReadyStatus lists the state for each non-ready resource. | \[\][NonReadyStatus](#nonreadystatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### Partition
 
@@ -259,7 +260,7 @@ Partition defines a separate rollout strategy for a set of clusters.
 | clusterGroup | A cluster group name to include in this partition | string | false |
 | clusterGroupSelector | Selector matching cluster group labels to include in this partition | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### PartitionStatus
 
@@ -273,7 +274,7 @@ PartitionStatus is the status of a single rollout partition.
 | unavailable | Unavailable is the number of unavailable clusters in the partition. | int | false |
 | summary | Summary is a summary state for the partition, calculated over its non-ready resources. | [BundleSummary](#bundlesummary) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ResourceKey
 
@@ -286,7 +287,7 @@ ResourceKey lists resources, which will likely be deployed.
 | namespace | Namespace is the namespace of the resource. | string | false |
 | name | Name is the name of the resource. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### RolloutStrategy
 
@@ -299,7 +300,7 @@ RolloverStrategy controls the rollout of the bundle across clusters.
 | autoPartitionSize | A number or percentage of how to automatically partition clusters if no specific partitioning strategy is configured. default: 25% | *intstr.IntOrString | false |
 | partitions | A list of definitions of partitions.  If any target clusters do not match the configuration they are added to partitions at the end following the autoPartitionSize. | \[\][Partition](#partition) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeployment
 
@@ -311,7 +312,7 @@ BundleDeployment is used internally by Fleet and should not be used directly. Wh
 | spec |  | [BundleDeploymentSpec](#bundledeploymentspec) | false |
 | status |  | [BundleDeploymentStatus](#bundledeploymentstatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentDisplay
 
@@ -323,7 +324,7 @@ BundleDeployment is used internally by Fleet and should not be used directly. Wh
 | monitored |  | string | false |
 | state |  | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentList
 
@@ -334,7 +335,7 @@ BundleDeploymentList contains a list of BundleDeployment
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][BundleDeployment](#bundledeployment) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentOptions
 
@@ -348,7 +349,7 @@ BundleDeploymentList contains a list of BundleDeployment
 | helm | Helm options for the deployment, like the chart name, repo and values. | *[HelmOptions](#helmoptions) | false |
 | serviceAccount | ServiceAccount which will be used to perform this deployment. | string | false |
 | forceSyncGeneration | ForceSyncGeneration is used to force a redeployment | int64 | false |
-| yaml | YAML options, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
+| yaml | YAML options, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource. | *[YAMLOptions](#yamloptions) | false |
 | diff | Diff can be used to ignore the modified state of objects which are amended at runtime. | *[DiffOptions](#diffoptions) | false |
 | keepResources | KeepResources can be used to keep the deployed resources when removing the bundle | bool | false |
 | deleteNamespace | DeleteNamespace can be used to delete the deployed namespace when removing the bundle | bool | false |
@@ -358,7 +359,7 @@ BundleDeploymentList contains a list of BundleDeployment
 | namespaceAnnotations | NamespaceAnnotations are annotations that will be appended to the namespace created by Fleet. | map[string]string | false |
 | deleteCRDResources | DeleteCRDResources deletes CRDs. Warning! this will also delete all your Custom Resources. | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentResource
 
@@ -372,7 +373,7 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | name |  | string | false |
 | createdAt |  | metav1.Time | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentSpec
 
@@ -388,8 +389,9 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | dependsOn | DependsOn refers to the bundles which must be ready before this bundle can be deployed. | \[\][BundleRef](#bundleref) | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
 | ociContents | OCIContents is true when this deployment's contents is stored in an oci registry | bool | false |
+| valuesHash | ValuesHash is the hash of the values used to deploy the bundle. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleDeploymentStatus
 
@@ -408,7 +410,7 @@ BundleDeploymentResource contains the metadata of a deployed resource.
 | syncGeneration |  | *int64 | false |
 | resources | Resources lists the metadata of resources that were deployed according to the helm release history. | \[\][BundleDeploymentResource](#bundledeploymentresource) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ComparePatch
 
@@ -423,7 +425,7 @@ ComparePatch matches a resource and removes fields from the check for modificati
 | operations | Operations remove a JSON path from the resource. | \[\][Operation](#operation) | false |
 | jsonPointers | JSONPointers ignore diffs at a certain JSON path. | []string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ConfigMapKeySelector
 
@@ -434,7 +436,7 @@ ComparePatch matches a resource and removes fields from the check for modificati
 | namespace |  | string | false |
 | key |  | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### DiffOptions
 
@@ -444,7 +446,7 @@ ComparePatch matches a resource and removes fields from the check for modificati
 | ----- | ----------- | ------ | -------- |
 | comparePatches | ComparePatches match a resource and remove fields from the check for modifications. | \[\][ComparePatch](#comparepatch) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### HelmOptions
 
@@ -470,7 +472,7 @@ HelmOptions for the deployment. For Helm-based bundles, all options can be used,
 | skipSchemaValidation | SkipSchemaValidation allows skipping schema validation against the chart values | bool | false |
 | disableDependencyUpdate | DisableDependencyUpdate allows skipping chart dependencies update | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### IgnoreOptions
 
@@ -480,7 +482,7 @@ IgnoreOptions defines conditions to be ignored when monitoring the Bundle.
 | ----- | ----------- | ------ | -------- |
 | conditions | Conditions is a list of conditions to be ignored when monitoring the Bundle. | []map[string]string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### KustomizeOptions
 
@@ -490,7 +492,7 @@ KustomizeOptions for a deployment.
 | ----- | ----------- | ------ | -------- |
 | dir | Dir points to a custom folder for kustomize resources. This folder must contain a kustomization.yaml file. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### LocalObjectReference
 
@@ -500,7 +502,7 @@ KustomizeOptions for a deployment.
 | ----- | ----------- | ------ | -------- |
 | name | Name of a resource in the same namespace as the referent. | string | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ModifiedStatus
 
@@ -517,7 +519,7 @@ ModifiedStatus is used to report the status of a resource that is modified. It i
 | delete |  | bool | false |
 | patch |  | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### NonReadyStatus
 
@@ -532,7 +534,7 @@ NonReadyStatus is used to report the status of a resource that is not ready. It 
 | name |  | string | false |
 | summary |  | summary.Summary | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### Operation
 
@@ -544,7 +546,7 @@ Operation of a ComparePatch, usually \"remove\".
 | path | Path is the JSON path to remove. | string | false |
 | value | Value is usually empty. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### SecretKeySelector
 
@@ -555,7 +557,7 @@ Operation of a ComparePatch, usually \"remove\".
 | namespace |  | string | false |
 | key |  | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ValuesFrom
 
@@ -566,17 +568,17 @@ Define helm values that can come from configmap, secret or external. Credit: htt
 | configMapKeyRef | The reference to a config map with release values. | *[ConfigMapKeySelector](#configmapkeyselector) | false |
 | secretKeyRef | The reference to a secret with release values. | *[SecretKeySelector](#secretkeyselector) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### YAMLOptions
 
-YAMLOptions, if using raw YAML these are names that map to overlays/`{name}` files that will be used to replace or patch a resource.
+YAMLOptions, if using raw YAML these are names that map to overlays/{name} files that will be used to replace or patch a resource.
 
 | Field | Description | Scheme | Required |
 | ----- | ----------- | ------ | -------- |
 | overlays | Overlays is a list of names that maps to folders in \"overlays/\". If you wish to customize the file ./subdir/resource.yaml then a file ./overlays/myoverlay/subdir/resource.yaml will replace the base file. A file named ./overlays/myoverlay/subdir/resource_patch.yaml will patch the base file. | []string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleNamespaceMapping
 
@@ -588,7 +590,7 @@ BundleNamespaceMapping maps bundles to clusters in other namespaces.
 | bundleSelector |  | *metav1.LabelSelector | false |
 | namespaceSelector |  | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### BundleNamespaceMappingList
 
@@ -599,7 +601,7 @@ BundleNamespaceMappingList contains a list of BundleNamespaceMapping
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][BundleNamespaceMapping](#bundlenamespacemapping) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### AgentStatus
 
@@ -610,7 +612,7 @@ BundleNamespaceMappingList contains a list of BundleNamespaceMapping
 | lastSeen | LastSeen is the last time the agent checked in to update the status of the cluster resource. | metav1.Time | true |
 | namespace | Namespace is the namespace of the agent deployment, e.g. \"cattle-fleet-system\". | string | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### Cluster
 
@@ -622,7 +624,7 @@ Cluster corresponds to a Kubernetes cluster. Fleet deploys bundles to targeted c
 | spec |  | [ClusterSpec](#clusterspec) | false |
 | status |  | [ClusterStatus](#clusterstatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterDisplay
 
@@ -633,7 +635,7 @@ Cluster corresponds to a Kubernetes cluster. Fleet deploys bundles to targeted c
 | readyBundles | ReadyBundles is a string in the form \"%d/%d\", that describes the number of bundles that are ready vs. the number of bundles desired to be ready. | string | false |
 | state | State of the cluster, either one of the bundle states, or \"WaitCheckIn\". | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterList
 
@@ -644,7 +646,7 @@ ClusterList contains a list of Cluster
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][Cluster](#cluster) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterSpec
 
@@ -666,7 +668,7 @@ ClusterList contains a list of Cluster
 | agentResources | AgentResources sets the resources for the cluster's agent deployment. | *corev1.ResourceRequirements | false |
 | hostNetwork | HostNetwork sets the agent StatefulSet to use hostNetwork: true setting. Allows for provisioning of network related bundles (CNI configuration). | *bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterStatus
 
@@ -698,7 +700,7 @@ ClusterList contains a list of Cluster
 | agent | AgentStatus contains information about the agent. | [AgentStatus](#agentstatus) | false |
 | garbageCollectionInterval | GarbageCollectionInterval determines how often agents clean up obsolete Helm releases. | *metav1.Duration | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterGroup
 
@@ -710,7 +712,7 @@ ClusterGroup is a re-usable selector to target a group of clusters.
 | spec |  | [ClusterGroupSpec](#clustergroupspec) | true |
 | status |  | [ClusterGroupStatus](#clustergroupstatus) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterGroupDisplay
 
@@ -722,7 +724,7 @@ ClusterGroup is a re-usable selector to target a group of clusters.
 | readyBundles | ReadyBundles is a string in the form \"%d/%d\", that describes the number of bundles that are ready vs. the number of bundles desired to be ready. | string | false |
 | state | State is a summary state for the cluster group, showing \"NotReady\" if there are non-ready resources. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterGroupList
 
@@ -733,7 +735,7 @@ ClusterGroupList contains a list of ClusterGroup
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][ClusterGroup](#clustergroup) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterGroupSpec
 
@@ -743,7 +745,7 @@ ClusterGroupList contains a list of ClusterGroup
 | ----- | ----------- | ------ | -------- |
 | selector | Selector is a label selector, used to select clusters for this group. | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterGroupStatus
 
@@ -759,7 +761,7 @@ ClusterGroupList contains a list of ClusterGroup
 | display | Display contains the number of ready, desiredready clusters and a summary state for the bundle's resources. | [ClusterGroupDisplay](#clustergroupdisplay) | false |
 | resourceCounts | ResourceCounts contains the number of resources in each state over all bundles in the cluster group. | [GitRepoResourceCounts](#gitreporesourcecounts) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistration
 
@@ -771,7 +773,7 @@ ClusterRegistration is used internally by Fleet and should not be used directly.
 | spec |  | [ClusterRegistrationSpec](#clusterregistrationspec) | false |
 | status |  | [ClusterRegistrationStatus](#clusterregistrationstatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationList
 
@@ -782,7 +784,7 @@ ClusterRegistrationList contains a list of ClusterRegistration
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][ClusterRegistration](#clusterregistration) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationSpec
 
@@ -794,7 +796,7 @@ ClusterRegistrationList contains a list of ClusterRegistration
 | clientRandom | ClientRandom is a random string that the agent generates. When fleet-controller grants a registration, it creates a registration secret with this string in the name. | string | false |
 | clusterLabels | ClusterLabels are copied to the cluster resource during the registration. | map[string]string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationStatus
 
@@ -805,7 +807,7 @@ ClusterRegistrationList contains a list of ClusterRegistration
 | clusterName | ClusterName is only set after the registration is being processed by fleet-controller. | string | false |
 | granted | Granted is set to true, if the request service account is present and its token secret exists. This happens directly before creating the registration secret, roles and rolebindings. | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationToken
 
@@ -817,7 +819,7 @@ ClusterRegistrationToken is used by agents to register a new cluster.
 | spec |  | [ClusterRegistrationTokenSpec](#clusterregistrationtokenspec) | false |
 | status |  | [ClusterRegistrationTokenStatus](#clusterregistrationtokenstatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationTokenList
 
@@ -828,7 +830,7 @@ ClusterRegistrationTokenList contains a list of ClusterRegistrationToken
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][ClusterRegistrationToken](#clusterregistrationtoken) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationTokenSpec
 
@@ -838,7 +840,7 @@ ClusterRegistrationTokenList contains a list of ClusterRegistrationToken
 | ----- | ----------- | ------ | -------- |
 | ttl | TTL is the time to live for the token. It is used to calculate the expiration time. If the token expires, it will be deleted. | *metav1.Duration | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ClusterRegistrationTokenStatus
 
@@ -849,7 +851,7 @@ ClusterRegistrationTokenList contains a list of ClusterRegistrationToken
 | expires | Expires is the time when the token expires. | *metav1.Time | false |
 | secretName | SecretName is the name of the secret containing the token. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### Content
 
@@ -861,7 +863,7 @@ Content is used internally by Fleet and should not be used directly. It contains
 | content | Content is a byte array, which contains the manifests of a bundle. The bundle resources are copied into the bundledeployment's content resource, so the downstream agent can deploy them. | []byte | false |
 | sha256sum | SHA256Sum of the Content field | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ContentList
 
@@ -872,7 +874,7 @@ ContentList contains a list of Content
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][Content](#content) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### CommitSpec
 
@@ -884,7 +886,7 @@ CommitSpec specifies how to commit changes to the git repository
 | authorEmail | AuthorEmail gives the email to provide when making a commit | string | true |
 | messageTemplate | MessageTemplate provides a template for the commit message, into which will be interpolated the details of the change made. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### CorrectDrift
 
@@ -896,7 +898,7 @@ CommitSpec specifies how to commit changes to the git repository
 | force | Force helm rollback with --force option will be used if true. This will try to recreate all resources in the release. | bool | false |
 | keepFailHistory | KeepFailHistory keeps track of failed rollbacks in the helm history. | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepo
 
@@ -908,7 +910,7 @@ GitRepo describes a git repository that is watched by Fleet. The resource contai
 | spec |  | [GitRepoSpec](#gitrepospec) | false |
 | status |  | [GitRepoStatus](#gitrepostatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoDisplay
 
@@ -921,7 +923,7 @@ GitRepo describes a git repository that is watched by Fleet. The resource contai
 | message | Message contains the relevant message from the deployment conditions. | string | false |
 | error | Error is true if a message is present. | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoList
 
@@ -932,7 +934,7 @@ GitRepoList contains a list of GitRepo
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][GitRepo](#gitrepo) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoResource
 
@@ -951,9 +953,9 @@ GitRepoResource contains metadata about the resources of a bundle.
 | error | Error is true if any Error in the PerClusterState is true. | bool | false |
 | transitioning | Transitioning is true if any Transitioning in the PerClusterState is true. | bool | false |
 | message | Message is the first message from the PerClusterStates. | string | false |
-| perClusterState | PerClusterState is a list of states for each cluster. Derived from the summaries non-ready resources. | \[\][ResourcePerClusterState](#resourceperclusterstate) | false |
+| perClusterState | PerClusterState is a list of states for each cluster. Derived from the summaries non-ready resources. | PerClusterState | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoResourceCounts
 
@@ -970,7 +972,7 @@ GitRepoResourceCounts contains the number of resources in each state.
 | unknown | Unknown is the number of resources in an unknown state. | int | true |
 | notReady | NotReady is the number of not ready resources. Resources are not ready if they do not match any other state. | int | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoSpec
 
@@ -995,14 +997,14 @@ GitRepoResourceCounts contains the number of resources in each state.
 | pollingInterval | PollingInterval is how often to check git for new updates. | *metav1.Duration | false |
 | forceSyncGeneration | Increment this number to force a redeployment of contents from Git. | int64 | false |
 | imageScanInterval | ImageScanInterval is the interval of syncing scanned images and writing back to git repo. | *metav1.Duration | false |
-| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | [CommitSpec](#commitspec) | false |
+| imageScanCommit | Commit specifies how to commit to the git repo when a new image is scanned and written back to git repo. | *[CommitSpec](#commitspec) | false |
 | keepResources | KeepResources specifies if the resources created must be kept after deleting the GitRepo. | bool | false |
 | deleteNamespace | DeleteNamespace specifies if the namespace created must be deleted after deleting the GitRepo. | bool | false |
 | correctDrift | CorrectDrift specifies how drift correction should work. | *[CorrectDrift](#correctdrift) | false |
 | disablePolling | Disables git polling. When enabled only webhooks will be used. | bool | false |
 | ociRegistry | OCIRegistry specifies the OCI registry related parameters | *[OCIRegistrySpec](#ociregistryspec) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoStatus
 
@@ -1026,7 +1028,7 @@ GitRepoResourceCounts contains the number of resources in each state.
 | lastSyncedImageScanTime | LastSyncedImageScanTime is the time of the last image scan. | metav1.Time | false |
 | lastPollingTriggered | LastPollingTime is the last time the polling check was triggered | metav1.Time | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitTarget
 
@@ -1040,7 +1042,7 @@ GitTarget is a cluster or cluster group to deploy to.
 | clusterGroup | ClusterGroup is the name of a cluster group in the same namespace as the clusters. | string | false |
 | clusterGroupSelector | ClusterGroupSelector is a label selector to select cluster groups. | *metav1.LabelSelector | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### OCIRegistrySpec
 
@@ -1053,7 +1055,7 @@ GitTarget is a cluster or cluster group to deploy to.
 | basicHTTP | BasicHTTP uses HTTP connections to the OCI registry when enabled. | bool | false |
 | insecureSkipTLS | InsecureSkipTLS allows connections to OCI registry without certs when enabled. | bool | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ResourcePerClusterState
 
@@ -1068,7 +1070,7 @@ ResourcePerClusterState is generated for each non-ready resource of the bundles.
 | patch | Patch for modified resources. | *GenericMap | false |
 | clusterId | ClusterID is the id of the cluster. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoRestriction
 
@@ -1084,7 +1086,7 @@ GitRepoRestriction is a resource that can optionally be used to restrict the opt
 | allowedClientSecretNames | AllowedClientSecretNames is a list of client secret names that GitRepos are allowed to use. | []string | false |
 | allowedTargetNamespaces | AllowedTargetNamespaces restricts TargetNamespace to the given namespaces. If AllowedTargetNamespaces is set, TargetNamespace must be set. | []string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### GitRepoRestrictionList
 
@@ -1095,7 +1097,7 @@ GitRepoRestrictionList contains a list of GitRepoRestriction
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][GitRepoRestriction](#gitreporestriction) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### AlphabeticalPolicy
 
@@ -1105,7 +1107,7 @@ AlphabeticalPolicy specifies a alphabetical ordering policy.
 | ----- | ----------- | ------ | -------- |
 | order | Order specifies the sorting order of the tags. Given the letters of the alphabet as tags, ascending order would select Z, and descending order would select A. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImagePolicyChoice
 
@@ -1116,7 +1118,7 @@ ImagePolicyChoice is a union of all the types of policy that can be supplied.
 | semver | SemVer gives a semantic version range to check against the tags available. | *[SemVerPolicy](#semverpolicy) | false |
 | alphabetical | Alphabetical set of rules to use for alphabetical ordering of the tags. | *[AlphabeticalPolicy](#alphabeticalpolicy) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImageScan
 
@@ -1128,7 +1130,7 @@ ImagePolicyChoice is a union of all the types of policy that can be supplied.
 | spec |  | [ImageScanSpec](#imagescanspec) | false |
 | status |  | [ImageScanStatus](#imagescanstatus) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImageScanList
 
@@ -1139,7 +1141,7 @@ ImageScanList contains a list of ImageScan
 | metadata |  | metav1.ListMeta | false |
 | items |  | \[\][ImageScan](#imagescan) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImageScanSpec
 
@@ -1155,7 +1157,7 @@ API is taken from https://github.com/fluxcd/image-reflector-controller
 | suspend | This flag tells the controller to suspend subsequent image scans. It does not apply to already started scans. Defaults to false. | bool | false |
 | policy | Policy gives the particulars of the policy to be followed in selecting the most recent image | [ImagePolicyChoice](#imagepolicychoice) | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImageScanStatus
 
@@ -1171,7 +1173,7 @@ API is taken from https://github.com/fluxcd/image-reflector-controller
 | observedGeneration |  | int64 | false |
 | canonicalImageName | CanonicalName is the name of the image repository with all the implied bits made explicit; e.g., `docker.io/library/alpine` rather than `alpine`. | string | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### SemVerPolicy
 
@@ -1181,7 +1183,7 @@ SemVerPolicy specifies a semantic version policy.
 | ----- | ----------- | ------ | -------- |
 | range | Range gives a semver range for the image tag; the highest version within the range that's a tag yields the latest image. | string | true |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### FleetYAML
 
@@ -1196,7 +1198,7 @@ FleetYAML is the top-level structure of the fleet.yaml file. The fleet.yaml file
 | imageScans | ImageScans are optional and used to update container image references in the git repo. | \[\][ImageScanYAML](#imagescanyaml) | false |
 | overrideTargets | OverrideTargets overrides targets that are defined in the GitRepo resource. If overrideTargets is provided the bundle will not inherit targets from the GitRepo. | \[\][GitTarget](#gittarget) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
 
 #### ImageScanYAML
 
@@ -1207,4 +1209,4 @@ ImageScanYAML is a single entry in the ImageScan list from fleet.yaml.
 | name | Name of the image scan. Unused. | string | false |
 | ImageScanSpec |  | [ImageScanSpec](#imagescanspec) | false |
 
-[Back to Custom Resources](#)
+[Back to Custom Resources](#custom-resources-spec)
