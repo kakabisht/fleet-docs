@@ -1,5 +1,7 @@
 # Website
 
+**Note:** To reduce the number of repositories, Fleet documentation has moved to a single-source repository: https://github.com/rancher/fleet-product-docs This repository is archived and no longer maintained.
+
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
 The docs are hosted at: https://fleet.rancher.io/
